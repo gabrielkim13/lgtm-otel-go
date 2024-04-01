@@ -1,0 +1,45 @@
+server:
+  log_level: info
+
+metrics:
+  wal_directory: /tmp/grafana-agent-wal
+  global:
+    scrape_interval: 1m
+    remote_write:
+    - url: http://lgtm:9090/api/v1/write
+  configs:
+    - name: default
+      scrape_configs:
+      - job_name: otel-go
+        static_configs:
+        - targets: ['localhost:8080']
+
+logs:
+  configs:
+  - name: default
+    clients:
+      - url: http://lgtm:3100/loki/api/v1/push
+    positions:
+      filename: /tmp/positions.yaml
+    scrape_configs:
+    - job_name: otel-go
+      static_configs:
+      - targets: [127.0.0.1]
+        labels:
+          job: otel-go-log
+          __path__: /var/log/otel-go.log
+
+traces:
+  configs:
+  - name: default
+    remote_write:
+      - endpoint: http://lgtm:4318
+        protocol: http
+    receivers:
+      otlp:
+        protocols:
+          http:
+
+integrations:
+  node_exporter:
+    enabled: true

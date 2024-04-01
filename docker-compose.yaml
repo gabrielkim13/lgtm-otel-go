@@ -1,0 +1,27 @@
+version: "3"
+
+services:
+  lgtm:
+    build: docker/lgtm
+    ports:
+      # Loki
+      - 3100:3100
+
+      # Grafana
+      - 3000:3000
+      
+      # Prometheus
+      - 9090:9090
+
+      # Tempo
+      - 3200:3200
+      - 9096:9096
+      - 4317:4317
+      - 4318:4318
+
+  otel-go:
+    build: .
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
+    ports:
+      - 8080:8080
